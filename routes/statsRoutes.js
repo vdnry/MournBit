@@ -1,0 +1,12 @@
+const express = require('express');
+const router = express.Router();
+const { getPublicStats, getMyStats } = require('../controllers/statsController');
+const { auth } = require('../middleware/auth');
+
+// Public stats
+router.get('/', getPublicStats);
+
+// Role-specific dashboard stats
+router.get('/me', auth, getMyStats);
+
+module.exports = router;
