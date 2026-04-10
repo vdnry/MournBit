@@ -52,13 +52,11 @@ function showToast(message, type = 'info') {
 
   container.appendChild(toast);
 
-  // Auto-remove after 4 seconds
+  // Auto-remove after 4 seconds - minimal fade
   setTimeout(() => {
     if (toast.parentElement) {
-      toast.style.transition = 'all 300ms ease';
       toast.style.opacity = '0';
-      toast.style.transform = 'translateX(100px)';
-      setTimeout(() => toast.remove(), 300);
+      setTimeout(() => toast.remove(), 100);
     }
   }, 4000);
 }
