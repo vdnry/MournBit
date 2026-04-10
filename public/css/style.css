@@ -4,51 +4,53 @@
    ======================================== */
 
 :root {
-  /* Premium Matte Dark Palette */
-  --bg-primary: #0a0b0e;
-  --bg-secondary: #121318;
-  --bg-card: #19202b;
-  --bg-card-hover: #202938;
-  --bg-elevated: #252f3e;
-  --bg-nav: #0f1218;
-  --bg-modal-overlay: rgba(0, 0, 0, 0.8);
+  /* Ultra-Matte Dark Palette (Minimalist/Linear style) */
+  --bg-primary: #09090b;
+  --bg-secondary: #0f0f11;
+  --bg-card: #141417;
+  --bg-card-hover: #1b1b1f;
+  --bg-elevated: #212126;
+  --bg-nav: #09090b;
+  --bg-modal-overlay: rgba(0, 0, 0, 0.85);
 
-  --text-primary: #f0f2f5;
-  --text-secondary: #a3a9b8;
-  --text-muted: #6f7684;
-  --text-faint: #505866;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-faint: #52525b;
 
-  /* Premium Accent Colors */
-  --accent: #6b5ce7;
-  --accent-muted: rgba(107, 92, 231, 0.08);
-  --accent-hover: #7c6ef0;
+  /* Monochromatic accent for a professional look */
+  --accent: #ffffff;
+  --accent-muted: rgba(255, 255, 255, 0.1);
+  --accent-hover: #ffffff;
 
-  --green: #2ecc71;
-  --green-muted: rgba(46, 204, 113, 0.08);
-  --orange: #f39c12;
-  --orange-muted: rgba(243, 156, 18, 0.08);
-  --red: #e74c3c;
-  --red-muted: rgba(231, 76, 60, 0.08);
-  --blue: #3498db;
-  --blue-muted: rgba(52, 152, 219, 0.08);
-  --purple: #9b59b6;
-  --purple-muted: rgba(155, 89, 182, 0.08);
+  /* Desaturated semantic colors */
+  --green: #4ade80;
+  --green-muted: rgba(74, 222, 128, 0.1);
+  --orange: #fbbf24;
+  --orange-muted: rgba(251, 191, 36, 0.1);
+  --red: #f87171;
+  --red-muted: rgba(248, 113, 113, 0.1);
+  --blue: #60a5fa;
+  --blue-muted: rgba(96, 165, 250, 0.1);
+  --purple: #c084fc;
+  --purple-muted: rgba(192, 132, 252, 0.1);
 
-  /* Refined Borders */
-  --border: rgba(255, 255, 255, 0.04);
-  --border-strong: rgba(255, 255, 255, 0.08);
-  --divider: rgba(255, 255, 255, 0.02);
+  /* Sharp matte borders */
+  --border: #27272a;
+  --border-strong: #3f3f46;
+  --divider: #27272a;
 
-  --radius-xs: 5px;
-  --radius-sm: 7px;
-  --radius-md: 9px;
-  --radius-lg: 13px;
-  --radius-xl: 18px;
+  /* Sharper corners for a premium finished look */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 
-  /* Refined Shadows - More Depth, Less Glow */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Flat shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
   --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.12);
 
   --font-size-xs: 0.6875rem;
@@ -158,12 +160,12 @@ body {
 
 .nav-btn.accent {
   background: var(--accent);
-  color: #fff;
+  color: #000;
   font-weight: 600;
 }
 
 .nav-btn.accent:hover {
-  background: var(--accent-hover);
+  background: #e4e4e7;
 }
 
 .nav-auth {
@@ -362,7 +364,7 @@ body {
 
 .map-ctrl-btn.active {
   background: var(--accent);
-  color: #fff;
+  color: #000;
   border-color: var(--accent);
 }
 
@@ -574,7 +576,7 @@ body {
   width: 100%;
   padding: 11px 16px;
   background: var(--accent);
-  color: #fff;
+  color: #000;
   border: none;
   border-radius: var(--radius-md);
   font-family: inherit;
@@ -586,7 +588,7 @@ body {
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
+  background: #e4e4e7;
   box-shadow: var(--shadow-md);
 }
 
