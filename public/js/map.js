@@ -21,6 +21,7 @@ const STATUS_ICONS = {
   Pending: '⏳',
   Unclaimed: '🗑️',
   'In Progress': '🔧',
+  'Pending Proof': '📸',
   Cleared: '✅'
 };
 
@@ -123,25 +124,34 @@ function buildPopupHtml(ticket, statusIcon) {
         ticket.claimedBy && ticket.claimedBy._id === currentUser.volunteerId) {
       actionsHtml += `<button class="btn-clear" onclick="openCleanupModal('${ticket._id}')">📸 Submit Cleanup</button>`;
     }
-    if (currentUser.activeRole === 'Authority' && ticket.status === 'In Progress' &&
-        ticket.cleanupPhotoUrl && ticket.cleanupPhotoUrl !== '') {
+    if (currentUser.activeRole === 'Authority' && ticket.status === 'Pending Proof') {
       actionsHtml += `<button class="btn-close-ticket" onclick="closeTicket('${ticket._id}')">✅ Close Ticket</button>`;
     }
   }
 
   actionsHtml += `<button class="btn-view" onclick="viewTicketDetail('${ticket._id}')">👁️ Details</button>`;
 
+  let photosHtml = ticket.photoUrl ? `<img src="${ticket.photoUrl}" style="width:100%; border-radius:4px; margin-bottom:10px;" alt="Before">` : '';
+  if (ticket.cleanupPhotoUrl) {
+    photosHtml = `
+      <div style="display:flex; gap:5px; margin-bottom:10px;">
+        <img src="${ticket.photoUrl}" style="width:48%; border-radius:4px; object-fit:cover;" alt="Before">
+        <img src="${ticket.cleanupPhotoUrl}" style="width:48%; border-radius:4px; object-fit:cover;" alt="After">
+      </div>
+    `;
+  }
+
   return `
     <div class="popup-content">
       <h3>${statusIcon} Garbage Dump</h3>
       <div class="popup-info">
-        <span><span class="severity-badge ${ticket.severity.toLowerCase()}">${ticket.severity}</span> <span class="status-badge ${ticket.status.toLowerCase().replace(' ', '-')}">${ticket.status}</span></span>
+        <span><span class="severity-badge ${ticket.severity.toLowerCase()}">${ticket.severity}</span> <span class="status-badge ${ticket.status.toLowerCase().replace(/ /g, '-')}">${ticket.status}</span></span>
         <span>📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}</span>
         <span>👤 ${reporter} · ${timeAgo}</span>
-        ${ticket.claimedBy ? `<span>🤝 Claimed by: ${ticket.claimedBy.fullName || ticket.claimedBy.username}</span>` : ''}
+        ${ticket.claimedBy ? `<span>🤝 Claimed by: ${ticket.claimedBy.fullName || ticket.claimedBy.username} ${ticket.claimedBy.points ? `(Score: ${ticket.claimedBy.points})` : ''}</span>` : ''}
         ${ticket.claimDeadline && ticket.status === 'In Progress' ? `<span class="countdown">⏰ Deadline: ${formatDeadline(ticket.claimDeadline)}</span>` : ''}
       </div>
-      ${ticket.photoUrl ? `<img src="${ticket.photoUrl}" alt="Garbage dump photo" onerror="this.style.display='none'">` : ''}
+      ${photosHtml}
       <div class="popup-actions">${actionsHtml}</div>
     </div>
   `;
@@ -437,8 +447,11 @@ async function viewTicketDetail(id) {
       if (currentUser.activeRole === 'Volunteer' && ticket.status === 'Unclaimed') {
         actionsHtml += `<button class="btn-claim" onclick="claimTicket('${ticket._id}');closeDetailModal();">🤝 Claim</button>`;
       }
-      if (currentUser.activeRole === 'Authority' && ticket.status === 'In Progress' &&
-          ticket.cleanupPhotoUrl && ticket.cleanupPhotoUrl !== '') {
+      if (currentUser.activeRole === 'Volunteer' && ticket.status === 'In Progress' &&
+          ticket.claimedBy && ticket.claimedBy._id === currentUser.volunteerId) {
+        actionsHtml += `<button class="btn-clear" onclick="openCleanupModal('${ticket._id}');closeDetailModal();">📸 Submit Cleanup</button>`;
+      }
+      if (currentUser.activeRole === 'Authority' && ticket.status === 'Pending Proof') {
         actionsHtml += `<button class="btn-close-ticket" onclick="closeTicket('${ticket._id}');closeDetailModal();">✅ Close</button>`;
       }
     }
@@ -448,7 +461,7 @@ async function viewTicketDetail(id) {
         <h2>${STATUS_ICONS[ticket.status] || ''} Ticket Details</h2>
         <div>
           <span class="severity-badge ${ticket.severity.toLowerCase()}">${ticket.severity}</span>
-          <span class="status-badge ${ticket.status.toLowerCase().replace(' ', '-')}">${ticket.status}</span>
+          <span class="status-badge ${ticket.status.toLowerCase().replace(/ /g, '-')}">${ticket.status}</span>
         </div>
       </div>
 

@@ -33,19 +33,24 @@
       <span class="nav-title">MournBit</span>
     </div>
     <div class="nav-links">
-      <button id="btn-public-view" class="nav-btn active" onclick="showView('public')">Live Map</button>
-      <button id="btn-dashboard" class="nav-btn hidden" onclick="showView('dashboard')">Dashboard</button>
+      <button id="btn-public-view" class="nav-btn active" onclick="showView('public')" data-i18n="nav.liveMap">Live Map</button>
+      <button id="btn-leaderboard" class="nav-btn hidden" onclick="showView('leaderboard')" data-i18n="nav.leaderboard">Leaderboard</button>
+      <button id="btn-dashboard" class="nav-btn hidden" onclick="showView('dashboard')" data-i18n="nav.dashboard">Dashboard</button>
       <div id="role-switcher" class="role-switcher hidden">
-        <button id="btn-switch-marker" class="role-btn" onclick="switchRole('Marker')">Marker</button>
-        <button id="btn-switch-volunteer" class="role-btn" onclick="switchRole('Volunteer')">Volunteer</button>
+        <button id="btn-switch-marker" class="role-btn" onclick="switchRole('Marker')" data-i18n="role.marker">Marker</button>
+        <button id="btn-switch-volunteer" class="role-btn" onclick="switchRole('Volunteer')" data-i18n="role.volunteer">Volunteer</button>
       </div>
     </div>
     <div class="nav-auth">
+      <select id="lang-switch" class="nav-btn" onchange="switchLanguage(this.value)" style="margin-right: 10px; cursor: pointer; background: transparent; border: 1px solid #ccc; color: white;">
+        <option value="en" style="color: black;">English</option>
+        <option value="hi" style="color: black;">हिंदी</option>
+      </select>
       <span id="user-greeting" class="user-greeting hidden"></span>
       <span id="user-role-badge" class="role-badge hidden"></span>
-      <button id="btn-login" class="nav-btn accent" onclick="showAuthModal('login')">Login</button>
-      <button id="btn-register" class="nav-btn" onclick="showAuthModal('register')">Register</button>
-      <button id="btn-logout" class="nav-btn hidden" onclick="logout()">Logout</button>
+      <button id="btn-login" class="nav-btn accent" onclick="showAuthModal('login')" data-i18n="nav.login">Login</button>
+      <button id="btn-register" class="nav-btn" onclick="showAuthModal('register')" data-i18n="nav.register">Register</button>
+      <button id="btn-logout" class="nav-btn hidden" onclick="logout()" data-i18n="nav.logout">Logout</button>
     </div>
   </nav>
 
@@ -58,23 +63,23 @@
       <div id="stats-bar" class="stats-bar">
         <div class="stat-card">
           <span class="stat-number" id="stat-total">0</span>
-          <span class="stat-label">Total Reports</span>
+          <span class="stat-label" data-i18n="stat.total">Total Reports</span>
         </div>
         <div class="stat-card stat-pending">
           <span class="stat-number" id="stat-pending">0</span>
-          <span class="stat-label">Pending</span>
+          <span class="stat-label" data-i18n="status.pending">Pending</span>
         </div>
         <div class="stat-card stat-unclaimed">
           <span class="stat-number" id="stat-unclaimed">0</span>
-          <span class="stat-label">Unclaimed</span>
+          <span class="stat-label" data-i18n="status.unclaimed">Unclaimed</span>
         </div>
         <div class="stat-card stat-progress">
           <span class="stat-number" id="stat-inprogress">0</span>
-          <span class="stat-label">In Progress</span>
+          <span class="stat-label" data-i18n="status.inProgress">In Progress</span>
         </div>
         <div class="stat-card stat-cleared">
           <span class="stat-number" id="stat-cleared">0</span>
-          <span class="stat-label">Cleared</span>
+          <span class="stat-label" data-i18n="status.cleared">Cleared</span>
         </div>
       </div>
 
@@ -83,9 +88,9 @@
         <div id="map" class="map"></div>
         <!-- Map Controls -->
         <div class="map-controls">
-          <button id="btn-toggle-heat" class="map-ctrl-btn" onclick="toggleHeatmap()">🔥 Heatmap</button>
-          <button id="btn-my-location" class="map-ctrl-btn" onclick="goToMyLocation()">📍 My Location</button>
-          <button id="btn-toggle-cleared" class="map-ctrl-btn" onclick="toggleCleared()">👁️ Show Cleared</button>
+          <button id="btn-toggle-heat" class="map-ctrl-btn" onclick="toggleHeatmap()" data-i18n="map.heatBtn">🔥 Heatmap</button>
+          <button id="btn-my-location" class="map-ctrl-btn" onclick="goToMyLocation()" data-i18n="map.myLocBtn">📍 My Location</button>
+          <button id="btn-toggle-cleared" class="map-ctrl-btn" onclick="toggleCleared()" data-i18n="map.clearedBtn">👁️ Show Cleared</button>
         </div>
       </div>
     </section>
@@ -94,6 +99,16 @@
     <section id="view-dashboard" class="view">
       <div id="dashboard-content" class="dashboard-content">
         <!-- Dynamically populated -->
+      </div>
+    </section>
+
+    <!-- LEADERBOARD VIEW -->
+    <section id="view-leaderboard" class="view">
+      <div class="dashboard-content">
+        <h2 data-i18n="leaderboard.title">Volunteer Leaderboard</h2>
+        <div id="leaderboard-content" style="margin-top: 20px;">
+          <!-- Fetched dynamically -->
+        </div>
       </div>
     </section>
 

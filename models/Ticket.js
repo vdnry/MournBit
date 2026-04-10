@@ -27,7 +27,7 @@ const ticketSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Pending', 'Unclaimed', 'In Progress', 'Cleared'],
+    enum: ['Pending', 'Unclaimed', 'In Progress', 'Pending Proof', 'Cleared'],
     default: 'Pending'
   },
   generatedBy: {

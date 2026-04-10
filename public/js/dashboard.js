@@ -133,9 +133,7 @@ function renderVolunteerDashboard(container, stats, tickets) {
 
 function renderAuthorityDashboard(container, stats, tickets) {
   const pendingTickets = tickets.filter(t => t.status === 'Pending');
-  const awaitingClose = tickets.filter(t =>
-    t.status === 'In Progress' && t.cleanupPhotoUrl && t.cleanupPhotoUrl !== ''
-  );
+  const awaitingClose = tickets.filter(t => t.status === 'Pending Proof');
   const inProgressTickets = tickets.filter(t => t.status === 'In Progress');
 
   container.innerHTML = `
@@ -204,21 +202,35 @@ function renderTicketCard(ticket, context = '') {
     actionsHtml = `<button class="btn-clear" onclick="openCleanupModal('${ticket._id}')">📸 Clear</button>`;
   } else if (context === 'authority' && ticket.status === 'Pending') {
     actionsHtml = `<button class="btn-approve" onclick="approveTicket('${ticket._id}'); refreshDashboard();">✅ Approve</button>`;
-  } else if (context === 'authority-close') {
-    actionsHtml = `<button class="btn-close-ticket" onclick="closeTicket('${ticket._id}'); refreshDashboard();">✅ Close</button>`;
+  } else if (context === 'authority-close' || ticket.status === 'Pending Proof') {
+    // Both authority and others can see it's awaiting closure. But only authority can close.
+    if (context === 'authority-close') {
+      actionsHtml = `<button class="btn-close-ticket" onclick="closeTicket('${ticket._id}'); refreshDashboard();">✅ Close</button>`;
+    }
   }
 
   actionsHtml += `<button class="btn-view" onclick="viewTicketDetail('${ticket._id}')">👁️</button>`;
 
+  let photoHtml = `<img class="ticket-card-photo" src="${ticket.photoUrl}" alt="Before" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'80\\' height=\\'80\\'><rect fill=\\'%231a1f2e\\' width=\\'80\\' height=\\'80\\'/><text x=\\'50%25\\' y=\\'50%25\\' fill=\\'%2364748b\\' text-anchor=\\'middle\\' dy=\\'0.3em\\' font-size=\\'10\\'>📷</text></svg>'">`;
+  
+  if (ticket.cleanupPhotoUrl) {
+    photoHtml = `
+      <div style="display:flex; flex-direction:column; gap:5px; height: 100%;">
+        <img class="ticket-card-photo" src="${ticket.photoUrl}" style="height: 50%; object-fit: cover; border-bottom-left-radius: 0;" alt="Before">
+        <img class="ticket-card-photo" src="${ticket.cleanupPhotoUrl}" style="height: 50%; object-fit: cover; border-top-left-radius: 0;" alt="After">
+      </div>
+    `;
+  }
+
   return `
     <div class="ticket-card">
-      <img class="ticket-card-photo" src="${ticket.photoUrl}" alt="Garbage" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'80\\' height=\\'80\\'><rect fill=\\'%231a1f2e\\' width=\\'80\\' height=\\'80\\'/><text x=\\'50%25\\' y=\\'50%25\\' fill=\\'%2364748b\\' text-anchor=\\'middle\\' dy=\\'0.3em\\' font-size=\\'10\\'>📷</text></svg>'">
+      ${photoHtml}
       <div class="ticket-card-info">
         <h3>📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}</h3>
         <p>👤 ${reporter} · ${timeAgo}</p>
         <div class="ticket-card-meta">
           <span class="severity-badge ${ticket.severity.toLowerCase()}">${ticket.severity}</span>
-          <span class="status-badge ${ticket.status.toLowerCase().replace(' ', '-')}">${ticket.status}</span>
+          <span class="status-badge ${ticket.status.toLowerCase().replace(/ /g, '-')}">${ticket.status}</span>
           ${ticket.claimDeadline && ticket.status === 'In Progress' ?
             `<span class="countdown ${new Date(ticket.claimDeadline) < new Date() ? 'expired' : ''}">⏰ ${formatDeadline(ticket.claimDeadline)}</span>` : ''}
         </div>

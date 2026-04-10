@@ -429,6 +429,7 @@ body {
 .status-badge.pending { background: var(--orange-muted); color: var(--orange); }
 .status-badge.unclaimed { background: var(--blue-muted); color: var(--blue); }
 .status-badge.in-progress { background: var(--purple-muted); color: var(--purple); }
+.status-badge.pending-proof { background: var(--teal-muted, rgba(20, 184, 166, 0.15)); color: var(--teal, #14b8a6); }
 .status-badge.cleared { background: var(--green-muted); color: var(--green); }
 
 /* ========================================

@@ -26,6 +26,20 @@ exports.getPublicStats = async (req, res) => {
   }
 };
 
+// GET /api/stats/leaderboard — Top volunteers
+exports.getLeaderboard = async (req, res) => {
+  try {
+    const topVolunteers = await Volunteer.find()
+      .select('fullName username points ticketsClosed')
+      .sort({ points: -1, ticketsClosed: -1 })
+      .limit(20);
+    res.json(topVolunteers);
+  } catch (err) {
+    console.error('Leaderboard error:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // GET /api/stats/me — Role-specific dashboard stats
 exports.getMyStats = async (req, res) => {
   try {

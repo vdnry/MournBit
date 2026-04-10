@@ -245,8 +245,7 @@ exports.clearTicket = async (req, res) => {
 
     ticket.cleanupPhotoUrl = `/uploads/${req.file.filename}`;
     ticket.clearedTime = new Date();
-    // Keep status as 'In Progress' until authority closes it
-    // But mark it as ready for review
+    ticket.status = 'Pending Proof';
     await ticket.save();
 
     const populated = await Ticket.findById(ticket._id)
@@ -272,7 +271,7 @@ exports.closeTicket = async (req, res) => {
       return res.status(404).json({ error: 'Ticket not found' });
     }
 
-    if (ticket.status !== 'In Progress') {
+    if (ticket.status !== 'In Progress' && ticket.status !== 'Pending Proof') {
       return res.status(400).json({ error: `Cannot close ticket with status: ${ticket.status}` });
     }
 
@@ -284,8 +283,18 @@ exports.closeTicket = async (req, res) => {
     ticket.clearedTime = ticket.clearedTime || new Date();
     await ticket.save();
 
+    // Calculate points
+    let pointsEarned = 10;
+    if (ticket.severity === 'Medium') pointsEarned = 25;
+    if (ticket.severity === 'High') pointsEarned = 50;
+
     // Update volunteer stats
-    await Volunteer.findByIdAndUpdate(ticket.claimedBy, { $inc: { ticketsClosed: 1 } });
+    await Volunteer.findByIdAndUpdate(ticket.claimedBy, { 
+      $inc: { 
+        ticketsClosed: 1,
+        points: pointsEarned
+      } 
+    });
 
     // Update marker stats
     await Marker.findByIdAndUpdate(ticket.generatedBy, { $inc: { ticketsCleared: 1 } });
@@ -297,6 +306,10 @@ exports.closeTicket = async (req, res) => {
 
     const io = req.app.get('io');
     io.emit('ticket:closed', populated);
+    
+    // Broadcast leaderboard update
+    const topVolunteers = await Volunteer.find().sort({ points: -1, ticketsClosed: -1 }).limit(20);
+    io.emit('leaderboardUpdated', topVolunteers);
 
     res.json(populated);
   } catch (err) {

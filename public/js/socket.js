@@ -53,6 +53,10 @@ socket.on('ticket:closed', (ticket) => {
   if (currentView === 'dashboard') refreshDashboard();
 });
 
+socket.on('leaderboardUpdated', (topVolunteers) => {
+  if (currentView === 'leaderboard') refreshLeaderboard();
+});
+
 socket.on('notification:area', (data) => {
   console.log('📢 Area notification:', data);
   showToast(`📢 ${data.message}`, 'warning');
