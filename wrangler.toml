@@ -1,0 +1,36 @@
+# MournBit Cloudflare Workers Configuration
+name = "mournbit"
+main = "src/index.js"
+compatibility_date = "2024-01-15"
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "mournbit"
+database_id = "your-database-id"
+preview_database_id = "your-preview-database-id"
+
+# Durable Objects for WebSocket connections
+[[durable_objects.bindings]]
+name = "CHAT"
+class_name = "ChatRoom"
+
+# Environment variables
+[env.production]
+vars = { ENVIRONMENT = "production", JWT_SECRET = "your-jwt-secret-key", AUTHORIZED_DOMAINS = "vdnry.com" }
+
+[env.development]
+vars = { ENVIRONMENT = "development", JWT_SECRET = "dev-secret-key", AUTHORIZED_DOMAINS = "vdnry.com" }
+
+# Build configuration
+[build]
+command = ""
+cwd = "./"
+watch_paths = ["src/**/*.js"]
+
+# Triggers
+[triggers]
+crons = ["0 0 * * *"]
+
+# Compatibility flags
+compatibility_flags = ["nodejs_compat"]

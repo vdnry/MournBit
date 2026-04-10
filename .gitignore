@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+*.tgz
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Cloudflare
+.wrangler/
+wrangler.d.ts
+.dev.vars
+
+# Database
+*.db
+*.sqlite
+.mournbit-d1
+
+# OS
+Thumbs.db
+.DS_Store

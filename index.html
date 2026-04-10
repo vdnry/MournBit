@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MournBit - Real-Time Garbage Dump Tracking</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/build/heatmap.min.js"></script>
+</head>
+<body>
+    <div id="root">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <div class="logo-section">
+                    <img src="logo.png" alt="MournBit" class="logo">
+                    <h1>MournBit</h1>
+                </div>
+                <div class="nav-buttons">
+                    <button id="navLogin" class="btn btn-secondary">Login</button>
+                    <button id="navSignup" class="btn btn-primary">Sign Up</button>
+                    <button id="navDashboard" class="btn btn-primary" style="display:none;">Dashboard</button>
+                    <button id="navLogout" class="btn btn-secondary" style="display:none;">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="main-content">
+            <!-- Landing Page -->
+            <div id="landingPage" class="view active">
+                <div class="landing-hero">
+                    <div class="hero-content">
+                        <h2>Real-Time Garbage Dump Tracking</h2>
+                        <p>Help keep our cities clean. Mark, Volunteer, or Authorize garbage cleanup initiatives.</p>
+                        <div class="hero-cta">
+                            <button id="ctaMarkDump" class="btn btn-primary btn-lg">Mark a Dump</button>
+                            <button id="ctaVolunteer" class="btn btn-secondary btn-lg">Volunteer to Clean</button>
+                            <button id="ctaViewMap" class="btn btn-outline btn-lg">View Heat Map</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heat Map Section -->
+                <div class="heatmap-section">
+                    <h3>Live Garbage Density Map</h3>
+                    <div id="mapContainer" class="map-container">
+                        <div id="map" style="height: 500px;"></div>
+                    </div>
+                    <div class="map-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #2ecc71;"></div>
+                            <span>Low Density</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #f39c12;"></div>
+                            <span>Medium Density</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #e74c3c;"></div>
+                            <span>High Density</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tickets Nearby Section -->
+                <div class="nearby-tickets-section">
+                    <h3>Tickets Near You</h3>
+                    <div class="filter-controls">
+                        <input type="text" id="locationInput" placeholder="Enter location or use current location" class="input">
+                        <button id="useCurrentLocation" class="btn btn-secondary">Use Current Location</button>
+                        <select id="filterStatus" class="input">
+                            <option value="">All Status</option>
+                            <option value="Unclaimed">Unclaimed</option>
+                            <option value="In Progress">In Progress</option>
+                        </select>
+                    </div>
+                    <div id="ticketsList" class="tickets-list">
+                        <!-- Tickets loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authentication View -->
+            <div id="authView" class="view">
+                <div class="auth-container">
+                    <div id="loginForm" class="auth-form active">
+                        <h2>Login</h2>
+                        <form id="loginFormElement">
+                            <div class="form-group">
+                                <label for="loginEmail">Email</label>
+                                <input type="email" id="loginEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword">Password</label>
+                                <input type="password" id="loginPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Login</button>
+                            <p class="form-switch">Don't have an account? <a href="#" onclick="switchAuthForm(false)">Sign Up</a></p>
+                        </form>
+                    </div>
+
+                    <div id="signupForm" class="auth-form">
+                        <h2>Create Account</h2>
+                        <form id="signupFormElement">
+                            <div class="form-group">
+                                <label for="signupRole">I am a...</label>
+                                <select id="signupRole" required>
+                                    <option value="">Select Role</option>
+                                    <option value="marker">Marker (Report Garbage)</option>
+                                    <option value="volunteer">Volunteer (Clean Garbage)</option>
+                                    <option value="authority">Authority (Approve Cleanup)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="signupUsername">Username</label>
+                                <input type="text" id="signupUsername" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="signupFullName">Full Name</label>
+                                <input type="text" id="signupFullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="signupEmail">Email</label>
+                                <input type="email" id="signupEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="signupPassword">Password</label>
+                                <input type="password" id="signupPassword" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Sign Up</button>
+                            <p class="form-switch">Already have an account? <a href="#" onclick="switchAuthForm(true)">Login</a></p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marker Dashboard -->
+            <div id="markerDashboard" class="view">
+                <div class="dashboard-header">
+                    <h2>Marker Dashboard</h2>
+                    <button id="createTicketBtn" class="btn btn-primary">+ Create Ticket</button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="markerTicketsGenerated">0</div>
+                        <div class="stat-label">Tickets Generated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="markerTicketsApproved">0</div>
+                        <div class="stat-label">Tickets Approved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="markerTicketsCleared">0</div>
+                        <div class="stat-label">Tickets Cleared</div>
+                    </div>
+                </div>
+                <div id="markerTickets" class="tickets-section">
+                    <!-- Tickets loaded here -->
+                </div>
+            </div>
+
+            <!-- Volunteer Dashboard -->
+            <div id="volunteerDashboard" class="view">
+                <div class="dashboard-header">
+                    <h2>Volunteer Dashboard</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="volunteerTicketsClaimed">0</div>
+                        <div class="stat-label">Tickets Claimed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="volunteerTicketsClosed">0</div>
+                        <div class="stat-label">Tickets Closed (3-day limit)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="volunteerNearby">0</div>
+                        <div class="stat-label">Within 10 km radius</div>
+                    </div>
+                </div>
+                <div class="volunteer-section">
+                    <h3>Available Tickets</h3>
+                    <div id="availableTickets" class="tickets-list">
+                        <!-- Available tickets loaded here -->
+                    </div>
+                </div>
+                <div class="volunteer-section">
+                    <h3>My Claimed Tickets</h3>
+                    <div id="myClaimedTickets" class="tickets-list">
+                        <!-- Claimed tickets loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authority Dashboard -->
+            <div id="authorityDashboard" class="view">
+                <div class="dashboard-header">
+                    <h2>Authority Dashboard</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="authorityApproved">0</div>
+                        <div class="stat-label">Tickets Approved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="authorityPending">0</div>
+                        <div class="stat-label">Tickets Pending Review</div>
+                    </div>
+                </div>
+                <div class="authority-section">
+                    <h3>Pending Tickets for Approval</h3>
+                    <div id="pendingTickets" class="tickets-list">
+                        <!-- Pending tickets loaded here -->
+                    </div>
+                </div>
+                <div class="authority-section">
+                    <h3>Tickets Pending Clearance Verification</h3>
+                    <div id="clearanceTickets" class="tickets-list">
+                        <!-- Tickets awaiting clearance verification -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Modal -->
+            <div id="ticketModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 id="modalTitle">Create New Ticket</h2>
+                    <form id="ticketForm">
+                        <div class="form-group">
+                            <label for="ticketPhoto">Upload Photo of Garbage Dump *</label>
+                            <input type="file" id="ticketPhoto" accept="image/*" required>
+                            <div id="photoPreview" class="photo-preview"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticketLocation">Location</label>
+                            <div id="ticketLocation" class="location-display"></div>
+                            <button type="button" id="useLocationBtn" class="btn btn-secondary">Get Current Location</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticketSeverity">Severity Level *</label>
+                            <select id="ticketSeverity" required>
+                                <option value="">Select Severity</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Ticket</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

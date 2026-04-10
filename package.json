@@ -1,0 +1,31 @@
+{
+  "name": "mournbit",
+  "version": "1.0.0",
+  "description": "Real-time garbage dump tracking and cleanup coordination platform",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev --local",
+    "deploy": "wrangler publish",
+    "db:create": "wrangler d1 create mournbit",
+    "db:init": "wrangler d1 execute mournbit --file db-schema.sql --remote",
+    "db:init:local": "wrangler d1 execute mournbit --file db-schema.sql --local",
+    "pages:deploy": "wrangler pages publish ."
+  },
+  "dependencies": {
+    "cloudflare": "^3.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  },
+  "author": "",
+  "license": "MIT",
+  "keywords": [
+    "garbage",
+    "cleanup",
+    "volunteers",
+    "real-time",
+    "tracking",
+    "cloudflare",
+    "workers"
+  ]
+}
