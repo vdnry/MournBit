@@ -3,26 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MournBit - Real-Time Garbage Dump Tracking</title>
+    <title>MournBit — Real-Time Garbage Dump Tracking & Cleanup Platform</title>
+    <meta name="description" content="MournBit is a real-time garbage dump tracking platform. Report waste, volunteer to clean, and track community impact with live leaderboards and analytics.">
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://cdn.jsdelivr.net/npm/heatmap.js@2.0.5/build/heatmap.min.js"></script>
 </head>
 <body>
     <div id="root">
         <!-- Navigation -->
-        <nav class="navbar">
+        <nav class="navbar" id="navbar">
             <div class="navbar-container">
                 <div class="logo-section">
-                    <img src="logo.png" alt="MournBit" class="logo">
+                    <div class="logo-mark">M</div>
                     <h1>MournBit</h1>
                 </div>
-                <div class="nav-buttons">
-                    <button id="navLogin" class="btn btn-secondary">Login</button>
-                    <button id="navSignup" class="btn btn-primary">Sign Up</button>
-                    <button id="navDashboard" class="btn btn-primary" style="display:none;">Dashboard</button>
-                    <button id="navLogout" class="btn btn-secondary" style="display:none;">Logout</button>
+                <div class="nav-center">
+                    <button id="navHome" class="nav-link active" data-i18n="nav_home">Home</button>
+                    <button id="navLeaderboard" class="nav-link" data-i18n="nav_leaderboard">Leaderboard</button>
+                    <button id="navAnalytics" class="nav-link" data-i18n="nav_analytics">Analytics</button>
+                </div>
+                <div class="nav-right">
+                    <!-- Language Toggle -->
+                    <div class="lang-toggle" id="langToggle">
+                        <button class="lang-btn active" data-lang="en">EN</button>
+                        <button class="lang-btn" data-lang="hi">हिं</button>
+                    </div>
+                    <!-- Dark Mode Toggle -->
+                    <button id="darkModeToggle" class="icon-btn" title="Toggle theme">
+                        <svg id="darkModeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <div class="nav-buttons">
+                        <button id="navLogin" class="btn btn-ghost" data-i18n="login">Login</button>
+                        <button id="navSignup" class="btn btn-primary" data-i18n="signup">Sign Up</button>
+                        <button id="navDashboard" class="btn btn-primary" style="display:none;" data-i18n="dashboard">Dashboard</button>
+                        <button id="navLogout" class="btn btn-ghost" style="display:none;" data-i18n="logout">Logout</button>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -33,52 +52,179 @@
             <div id="landingPage" class="view active">
                 <div class="landing-hero">
                     <div class="hero-content">
-                        <h2>Real-Time Garbage Dump Tracking</h2>
-                        <p>Help keep our cities clean. Mark, Volunteer, or Authorize garbage cleanup initiatives.</p>
+                        <div class="hero-badge" data-i18n="hero_badge">Real-Time Platform</div>
+                        <h2 data-i18n="hero_title">Intelligent Waste Tracking & Cleanup Coordination</h2>
+                        <p data-i18n="hero_subtitle">Mark garbage dumps, volunteer for cleanup, and track impact with live leaderboards, proof verification, and community analytics.</p>
                         <div class="hero-cta">
-                            <button id="ctaMarkDump" class="btn btn-primary btn-lg">Mark a Dump</button>
-                            <button id="ctaVolunteer" class="btn btn-secondary btn-lg">Volunteer to Clean</button>
-                            <button id="ctaViewMap" class="btn btn-outline btn-lg">View Heat Map</button>
+                            <button id="ctaMarkDump" class="btn btn-primary btn-lg" data-i18n="cta_mark">Report a Dump</button>
+                            <button id="ctaVolunteer" class="btn btn-secondary btn-lg" data-i18n="cta_volunteer">Volunteer to Clean</button>
+                            <button id="ctaViewMap" class="btn btn-outline btn-lg" data-i18n="cta_map">View Heat Map</button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Mini Analytics Strip -->
+                <div class="analytics-strip" id="analyticsStrip">
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="analyticsTotalSpots">0</div>
+                        <div class="analytics-label" data-i18n="analytics_total_spots">Total Reports</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="analyticsCleared">0</div>
+                        <div class="analytics-label" data-i18n="analytics_cleared">Spots Cleared</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="analyticsVolunteers">0</div>
+                        <div class="analytics-label" data-i18n="analytics_volunteers">Active Volunteers</div>
+                    </div>
+                    <div class="analytics-item">
+                        <div class="analytics-value" id="analyticsAvgTime">0m</div>
+                        <div class="analytics-label" data-i18n="analytics_avg_time">Avg. Cleanup Time</div>
+                    </div>
+                </div>
+
                 <!-- Heat Map Section -->
-                <div class="heatmap-section">
-                    <h3>Live Garbage Density Map</h3>
+                <div class="section-block">
+                    <div class="section-header">
+                        <h3 data-i18n="map_title">Live Garbage Density Map</h3>
+                        <span class="live-indicator"><span class="live-dot"></span> <span data-i18n="live">Live</span></span>
+                    </div>
                     <div id="mapContainer" class="map-container">
                         <div id="map" style="height: 500px;"></div>
                     </div>
                     <div class="map-legend">
                         <div class="legend-item">
-                            <div class="legend-color" style="background-color: #2ecc71;"></div>
-                            <span>Low Density</span>
+                            <div class="legend-color" style="background-color: #34d399;"></div>
+                            <span data-i18n="legend_low">Low Density</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background-color: #f39c12;"></div>
-                            <span>Medium Density</span>
+                            <div class="legend-color" style="background-color: #fbbf24;"></div>
+                            <span data-i18n="legend_medium">Medium Density</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background-color: #e74c3c;"></div>
-                            <span>High Density</span>
+                            <div class="legend-color" style="background-color: #ef4444;"></div>
+                            <span data-i18n="legend_high">High Density</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color hotspot-color"></div>
+                            <span data-i18n="legend_hotspot">Hotspot Zone</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tickets Nearby Section -->
-                <div class="nearby-tickets-section">
-                    <h3>Tickets Near You</h3>
+                <div class="section-block">
+                    <div class="section-header">
+                        <h3 data-i18n="nearby_title">Tickets Near You</h3>
+                    </div>
                     <div class="filter-controls">
-                        <input type="text" id="locationInput" placeholder="Enter location or use current location" class="input">
-                        <button id="useCurrentLocation" class="btn btn-secondary">Use Current Location</button>
-                        <select id="filterStatus" class="input">
-                            <option value="">All Status</option>
-                            <option value="Unclaimed">Unclaimed</option>
-                            <option value="In Progress">In Progress</option>
+                        <input type="text" id="locationInput" class="input" data-i18n-placeholder="location_placeholder" placeholder="Enter location or use current location">
+                        <button id="useCurrentLocation" class="btn btn-secondary" data-i18n="use_location">Use Current Location</button>
+                        <select id="filterStatus" class="input select-input">
+                            <option value="" data-i18n="all_status">All Status</option>
+                            <option value="Unclaimed" data-i18n="status_unclaimed">Unclaimed</option>
+                            <option value="In Progress" data-i18n="status_in_progress">In Progress</option>
                         </select>
                     </div>
-                    <div id="ticketsList" class="tickets-list">
+                    <div id="ticketsList" class="tickets-grid">
                         <!-- Tickets loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard View -->
+            <div id="leaderboardView" class="view">
+                <div class="section-block">
+                    <div class="section-header">
+                        <h3 data-i18n="leaderboard_title">Volunteer Leaderboard</h3>
+                        <span class="live-indicator"><span class="live-dot"></span> <span data-i18n="live_updates">Updates every 5s</span></span>
+                    </div>
+                    <div id="myRankCard" class="my-rank-card" style="display:none;">
+                        <div class="my-rank-label" data-i18n="your_rank">Your Rank</div>
+                        <div class="my-rank-value" id="myRankValue">#--</div>
+                        <div class="my-rank-stats">
+                            <div><span id="myScore">0</span> <small data-i18n="points">pts</small></div>
+                            <div><span id="myCleanups">0</span> <small data-i18n="cleanups">cleanups</small></div>
+                            <div><span id="myTrust">50</span><small>%</small> <small data-i18n="trust">trust</small></div>
+                        </div>
+                    </div>
+                    <div class="leaderboard-table-wrapper">
+                        <table class="leaderboard-table" id="leaderboardTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="rank">Rank</th>
+                                    <th data-i18n="volunteer_name">Volunteer</th>
+                                    <th data-i18n="cleanups_col">Cleanups</th>
+                                    <th data-i18n="score">Score</th>
+                                    <th data-i18n="trust_score">Trust</th>
+                                    <th data-i18n="badges_col">Badges</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardBody">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analyticsView" class="view">
+                <div class="section-block">
+                    <div class="section-header">
+                        <h3 data-i18n="analytics_dashboard">Analytics Dashboard</h3>
+                    </div>
+                    <div class="analytics-grid" id="analyticsGrid">
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon analytics-icon-reports">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            </div>
+                            <div class="analytics-card-value" id="anTotalSpots">0</div>
+                            <div class="analytics-card-label" data-i18n="an_total_reports">Total Reports</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon analytics-icon-cleared">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <div class="analytics-card-value" id="anClearedSpots">0</div>
+                            <div class="analytics-card-label" data-i18n="an_cleared">Spots Cleared</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon analytics-icon-active">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            </div>
+                            <div class="analytics-card-value" id="anActiveSpots">0</div>
+                            <div class="analytics-card-label" data-i18n="an_active">Active Spots</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon analytics-icon-volunteers">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                            <div class="analytics-card-value" id="anVolunteers">0</div>
+                            <div class="analytics-card-label" data-i18n="an_volunteers">Volunteers</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon analytics-icon-top">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            </div>
+                            <div class="analytics-card-value" id="anTopVolunteer">--</div>
+                            <div class="analytics-card-label" data-i18n="an_top_volunteer">Top Volunteer</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-card-icon analytics-icon-time">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            </div>
+                            <div class="analytics-card-value" id="anAvgTime">--</div>
+                            <div class="analytics-card-label" data-i18n="an_avg_cleanup">Avg. Cleanup Time</div>
+                        </div>
+                    </div>
+                    <!-- Hotspot Section -->
+                    <div class="hotspot-section">
+                        <h4 data-i18n="hotspot_title">Hotspot Zones</h4>
+                        <p class="text-muted" data-i18n="hotspot_desc">Areas with repeated garbage reports requiring urgent attention.</p>
+                        <div id="hotspotList" class="hotspot-list">
+                            <!-- Loaded dynamically -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,51 +233,53 @@
             <div id="authView" class="view">
                 <div class="auth-container">
                     <div id="loginForm" class="auth-form active">
-                        <h2>Login</h2>
+                        <h2 data-i18n="login_title">Welcome Back</h2>
+                        <p class="auth-subtitle" data-i18n="login_subtitle">Sign in to your account</p>
                         <form id="loginFormElement">
                             <div class="form-group">
-                                <label for="loginEmail">Email</label>
+                                <label for="loginEmail" data-i18n="email">Email</label>
                                 <input type="email" id="loginEmail" required>
                             </div>
                             <div class="form-group">
-                                <label for="loginPassword">Password</label>
+                                <label for="loginPassword" data-i18n="password">Password</label>
                                 <input type="password" id="loginPassword" required>
                             </div>
-                            <button type="submit" class="btn btn-primary">Login</button>
-                            <p class="form-switch">Don't have an account? <a href="#" onclick="switchAuthForm(false)">Sign Up</a></p>
+                            <button type="submit" class="btn btn-primary btn-full" data-i18n="login">Login</button>
+                            <p class="form-switch"><span data-i18n="no_account">Don't have an account?</span> <a href="#" onclick="switchAuthForm(false)" data-i18n="signup">Sign Up</a></p>
                         </form>
                     </div>
 
                     <div id="signupForm" class="auth-form">
-                        <h2>Create Account</h2>
+                        <h2 data-i18n="signup_title">Create Account</h2>
+                        <p class="auth-subtitle" data-i18n="signup_subtitle">Join the cleanup movement</p>
                         <form id="signupFormElement">
                             <div class="form-group">
-                                <label for="signupRole">I am a...</label>
+                                <label for="signupRole" data-i18n="select_role">I am a...</label>
                                 <select id="signupRole" required>
-                                    <option value="">Select Role</option>
-                                    <option value="marker">Marker (Report Garbage)</option>
-                                    <option value="volunteer">Volunteer (Clean Garbage)</option>
-                                    <option value="authority">Authority (Approve Cleanup)</option>
+                                    <option value="" data-i18n="select_role_placeholder">Select Role</option>
+                                    <option value="marker" data-i18n="role_marker">Marker (Report Garbage)</option>
+                                    <option value="volunteer" data-i18n="role_volunteer">Volunteer (Clean Garbage)</option>
+                                    <option value="authority" data-i18n="role_authority">Authority (Approve Cleanup)</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="signupUsername">Username</label>
+                                <label for="signupUsername" data-i18n="username">Username</label>
                                 <input type="text" id="signupUsername" required>
                             </div>
                             <div class="form-group">
-                                <label for="signupFullName">Full Name</label>
+                                <label for="signupFullName" data-i18n="full_name">Full Name</label>
                                 <input type="text" id="signupFullName" required>
                             </div>
                             <div class="form-group">
-                                <label for="signupEmail">Email</label>
+                                <label for="signupEmail" data-i18n="email">Email</label>
                                 <input type="email" id="signupEmail" required>
                             </div>
                             <div class="form-group">
-                                <label for="signupPassword">Password</label>
+                                <label for="signupPassword" data-i18n="password">Password</label>
                                 <input type="password" id="signupPassword" required>
                             </div>
-                            <button type="submit" class="btn btn-primary">Sign Up</button>
-                            <p class="form-switch">Already have an account? <a href="#" onclick="switchAuthForm(true)">Login</a></p>
+                            <button type="submit" class="btn btn-primary btn-full" data-i18n="signup">Sign Up</button>
+                            <p class="form-switch"><span data-i18n="has_account">Already have an account?</span> <a href="#" onclick="switchAuthForm(true)" data-i18n="login">Login</a></p>
                         </form>
                     </div>
                 </div>
@@ -140,21 +288,30 @@
             <!-- Marker Dashboard -->
             <div id="markerDashboard" class="view">
                 <div class="dashboard-header">
-                    <h2>Marker Dashboard</h2>
-                    <button id="createTicketBtn" class="btn btn-primary">+ Create Ticket</button>
+                    <h2 data-i18n="marker_dashboard">Marker Dashboard</h2>
+                    <button id="createTicketBtn" class="btn btn-primary" data-i18n="create_ticket">+ Create Ticket</button>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card">
+                        <div class="stat-icon stat-icon-generated">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        </div>
                         <div class="stat-value" id="markerTicketsGenerated">0</div>
-                        <div class="stat-label">Tickets Generated</div>
+                        <div class="stat-label" data-i18n="tickets_generated">Tickets Generated</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-icon stat-icon-approved">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
                         <div class="stat-value" id="markerTicketsApproved">0</div>
-                        <div class="stat-label">Tickets Approved</div>
+                        <div class="stat-label" data-i18n="tickets_approved">Tickets Approved</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-icon stat-icon-cleared">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
                         <div class="stat-value" id="markerTicketsCleared">0</div>
-                        <div class="stat-label">Tickets Cleared</div>
+                        <div class="stat-label" data-i18n="tickets_cleared">Tickets Cleared</div>
                     </div>
                 </div>
                 <div id="markerTickets" class="tickets-section">
@@ -165,31 +322,54 @@
             <!-- Volunteer Dashboard -->
             <div id="volunteerDashboard" class="view">
                 <div class="dashboard-header">
-                    <h2>Volunteer Dashboard</h2>
+                    <h2 data-i18n="volunteer_dashboard">Volunteer Dashboard</h2>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card">
+                        <div class="stat-icon stat-icon-claimed">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle></svg>
+                        </div>
                         <div class="stat-value" id="volunteerTicketsClaimed">0</div>
-                        <div class="stat-label">Tickets Claimed</div>
+                        <div class="stat-label" data-i18n="tickets_claimed">Tickets Claimed</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-icon stat-icon-closed">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
                         <div class="stat-value" id="volunteerTicketsClosed">0</div>
-                        <div class="stat-label">Tickets Closed (3-day limit)</div>
+                        <div class="stat-label" data-i18n="tickets_closed">Tickets Completed</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="volunteerNearby">0</div>
-                        <div class="stat-label">Within 10 km radius</div>
+                        <div class="stat-icon stat-icon-score">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        </div>
+                        <div class="stat-value" id="volunteerScore">0</div>
+                        <div class="stat-label" data-i18n="total_score">Total Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-trust">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                        <div class="stat-value" id="volunteerTrust">50%</div>
+                        <div class="stat-label" data-i18n="trust_score_label">Trust Score</div>
+                    </div>
+                </div>
+                <!-- Badges -->
+                <div class="badges-section" id="volunteerBadges">
+                    <h4 data-i18n="your_badges">Your Badges</h4>
+                    <div class="badges-grid" id="badgesGrid">
+                        <!-- Loaded dynamically -->
                     </div>
                 </div>
                 <div class="volunteer-section">
-                    <h3>Available Tickets</h3>
-                    <div id="availableTickets" class="tickets-list">
+                    <h3 data-i18n="available_tickets">Available Tickets</h3>
+                    <div id="availableTickets" class="tickets-grid">
                         <!-- Available tickets loaded here -->
                     </div>
                 </div>
                 <div class="volunteer-section">
-                    <h3>My Claimed Tickets</h3>
-                    <div id="myClaimedTickets" class="tickets-list">
+                    <h3 data-i18n="my_claimed_tickets">My Claimed Tickets</h3>
+                    <div id="myClaimedTickets" class="tickets-grid">
                         <!-- Claimed tickets loaded here -->
                     </div>
                 </div>
@@ -198,59 +378,94 @@
             <!-- Authority Dashboard -->
             <div id="authorityDashboard" class="view">
                 <div class="dashboard-header">
-                    <h2>Authority Dashboard</h2>
+                    <h2 data-i18n="authority_dashboard">Authority Dashboard</h2>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card">
+                        <div class="stat-icon stat-icon-approved">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
                         <div class="stat-value" id="authorityApproved">0</div>
-                        <div class="stat-label">Tickets Approved</div>
+                        <div class="stat-label" data-i18n="tickets_approved">Tickets Approved</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-icon stat-icon-pending">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </div>
                         <div class="stat-value" id="authorityPending">0</div>
-                        <div class="stat-label">Tickets Pending Review</div>
+                        <div class="stat-label" data-i18n="pending_review">Pending Review</div>
                     </div>
                 </div>
                 <div class="authority-section">
-                    <h3>Pending Tickets for Approval</h3>
-                    <div id="pendingTickets" class="tickets-list">
+                    <h3 data-i18n="pending_approval">Pending Tickets for Approval</h3>
+                    <div id="pendingTickets" class="tickets-grid">
                         <!-- Pending tickets loaded here -->
                     </div>
                 </div>
                 <div class="authority-section">
-                    <h3>Tickets Pending Clearance Verification</h3>
-                    <div id="clearanceTickets" class="tickets-list">
+                    <h3 data-i18n="pending_clearance">Tickets Pending Clearance Verification</h3>
+                    <div id="clearanceTickets" class="tickets-grid">
                         <!-- Tickets awaiting clearance verification -->
                     </div>
                 </div>
             </div>
 
-            <!-- Ticket Modal -->
+            <!-- Ticket Creation Modal -->
             <div id="ticketModal" class="modal">
                 <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2 id="modalTitle">Create New Ticket</h2>
+                    <button class="modal-close" id="modalCloseBtn">&times;</button>
+                    <h2 id="modalTitle" data-i18n="create_new_ticket">Create New Ticket</h2>
                     <form id="ticketForm">
                         <div class="form-group">
-                            <label for="ticketPhoto">Upload Photo of Garbage Dump *</label>
+                            <label for="ticketPhoto" data-i18n="upload_photo">Upload Photo of Garbage Dump *</label>
                             <input type="file" id="ticketPhoto" accept="image/*" required>
                             <div id="photoPreview" class="photo-preview"></div>
                         </div>
                         <div class="form-group">
-                            <label for="ticketLocation">Location</label>
+                            <label for="ticketLocation" data-i18n="location">Location</label>
                             <div id="ticketLocation" class="location-display"></div>
-                            <button type="button" id="useLocationBtn" class="btn btn-secondary">Get Current Location</button>
+                            <button type="button" id="useLocationBtn" class="btn btn-secondary" data-i18n="get_location">Get Current Location</button>
                         </div>
                         <div class="form-group">
-                            <label for="ticketSeverity">Severity Level *</label>
+                            <label for="ticketSeverity" data-i18n="severity_level">Severity Level *</label>
                             <select id="ticketSeverity" required>
-                                <option value="">Select Severity</option>
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
+                                <option value="" data-i18n="select_severity">Select Severity</option>
+                                <option value="Low" data-i18n="severity_low">Low</option>
+                                <option value="Medium" data-i18n="severity_medium">Medium</option>
+                                <option value="High" data-i18n="severity_high">High</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Create Ticket</button>
+                        <button type="submit" class="btn btn-primary btn-full" data-i18n="create_ticket_submit">Create Ticket</button>
                     </form>
+                </div>
+            </div>
+
+            <!-- Before/After Proof Modal -->
+            <div id="proofModal" class="modal">
+                <div class="modal-content modal-lg">
+                    <button class="modal-close" id="proofModalCloseBtn">&times;</button>
+                    <h2 data-i18n="proof_title">Submit Cleanup Proof</h2>
+                    <p class="text-muted" data-i18n="proof_desc">Upload an after photo to verify cleanup. Without proof, the ticket cannot be marked as cleaned.</p>
+                    <div class="proof-comparison">
+                        <div class="proof-side">
+                            <div class="proof-label" data-i18n="before">Before</div>
+                            <div class="proof-image" id="proofBefore"></div>
+                        </div>
+                        <div class="proof-divider">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+                        <div class="proof-side">
+                            <div class="proof-label" data-i18n="after">After</div>
+                            <div class="proof-image proof-upload" id="proofAfter">
+                                <input type="file" id="proofAfterPhoto" accept="image/*">
+                                <div class="proof-upload-placeholder" id="proofAfterPlaceholder">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                    <span data-i18n="upload_after_photo">Upload After Photo</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="proofSubmitBtn" class="btn btn-primary btn-full" data-i18n="confirm_cleanup">Confirm Cleanup</button>
                 </div>
             </div>
         </div>
@@ -259,6 +474,6 @@
         <div id="toastContainer" class="toast-container"></div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

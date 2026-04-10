@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS volunteers (
   password_hash TEXT NOT NULL,
   tickets_claimed INTEGER NOT NULL DEFAULT 0,
   tickets_closed INTEGER NOT NULL DEFAULT 0,
+  total_score INTEGER NOT NULL DEFAULT 0,
+  trust_score INTEGER NOT NULL DEFAULT 50,
+  badges TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -43,7 +46,7 @@ CREATE TABLE IF NOT EXISTS tickets (
   generated_by TEXT NOT NULL,
   approved_by TEXT,
   claimed_by TEXT,
-  status TEXT NOT NULL DEFAULT 'Unclaimed', -- Unclaimed, In Progress, Cleared
+  status TEXT NOT NULL DEFAULT 'Unclaimed', -- Unclaimed, In Progress, Pending Proof, Cleared
   severity TEXT NOT NULL, -- Low, Medium, High
   latitude REAL NOT NULL,
   longitude REAL NOT NULL,
@@ -52,6 +55,9 @@ CREATE TABLE IF NOT EXISTS tickets (
   ticket_generation_time TEXT NOT NULL,
   ticket_claim_time TEXT,
   ticket_cleared_time TEXT,
+  cleanup_started_at TEXT,
+  cleanup_duration_minutes INTEGER,
+  verification_count INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   FOREIGN KEY (generated_by) REFERENCES markers(id),
@@ -64,6 +70,7 @@ CREATE INDEX IF NOT EXISTS idx_markers_email ON markers(email);
 CREATE INDEX IF NOT EXISTS idx_markers_username ON markers(username);
 CREATE INDEX IF NOT EXISTS idx_volunteers_email ON volunteers(email);
 CREATE INDEX IF NOT EXISTS idx_volunteers_username ON volunteers(username);
+CREATE INDEX IF NOT EXISTS idx_volunteers_score ON volunteers(total_score DESC);
 CREATE INDEX IF NOT EXISTS idx_authority_email ON authority(email);
 CREATE INDEX IF NOT EXISTS idx_authority_username ON authority(username);
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
